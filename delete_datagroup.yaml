@@ -1,0 +1,33 @@
+---
+#--------------------------------------------------------------------------------------
+#
+#Task1 　削除したいデータグループ名を入力あるいはコピー＆ペーストで貼り付ける。
+#
+#Task2 　入力したデータグループがBIG-IP上に存在する場合は設定削除を行う。
+#        存在しない場合は、エラー処理を行う。
+#
+#Task3　 BIG-IP(APM)#1からBIG-IP(APM)#2にConfig同期を行う。
+#
+#--------------------------------------------------------------------------------------
+
+- name: BIG-IP(APM)  Data-Group Delete
+  hosts: big-ip01.internal
+  connection: local
+  gather_facts: False
+  vars_prompt: 
+   - name: "DataGroup_Name"
+     prompt: "削除したいDataGroupNameを入力あるいはコピー＆ペーストで貼り付けて下さい。"   
+
+  tasks:
+    - name: Delete Data-Group
+      bigip_data_group:
+       internal: yes
+       name: "{{ DataGroup_Name }}"
+       state: absent
+       password: "{{ bigip_password }}"
+       server: "{{ ansible_host }}"
+       user: "{{ bigip_username }}"
+       validate_certs: "{{ validate_certs }}"
+      delegate_to: localhost
+      register: results
+      failed_when: results.changed != True
